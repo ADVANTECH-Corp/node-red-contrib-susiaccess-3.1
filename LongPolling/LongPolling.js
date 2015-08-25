@@ -1,0 +1,107 @@
+var http = require('http');
+var LongPollingJSFun = {};
+LongPollingJSFun.eventid = 0;
+LongPollingJSFun.pending = false;
+LongPollingJSFun.options = {
+    host: 'localhost',
+    port: '8080',
+    path: '/webresources',
+    method: 'GET',
+    headers: {'Authorization': 'Basic ',
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'}
+};
+
+LongPollingJSFun.sethttpOption = function (host, port, path, method, user, pwd) {
+    LongPollingJSFun.options.host = host;
+    LongPollingJSFun.options.port = port;
+    LongPollingJSFun.options.path = path;
+    LongPollingJSFun.options.method = method;
+    LongPollingJSFun.options.headers.Authorization = 'Basic ' + new Buffer(user + ":" + pwd).toString('base64');
+    return LongPollingJSFun.options;
+};
+
+LongPollingJSFun.submit = function (url, port, path, method, username, pwd, jsonStringData, res_success, res_error) {
+    var options = this.sethttpOption(url, port, path, method, username, pwd);
+    var req = http.request(options, function (response) {
+        var str = '';
+        response.on('data', function (chunk) {
+            str += chunk;
+        });
+        response.on('end', function () {
+            res_success(str);
+        });
+    }).on('error', function (error) {
+        res_error(error.errno);
+    });
+    if (method !== 'get')
+        req.write(jsonStringData);
+    req.end();
+};
+
+LongPollingJSFun.getjsoncontentData = function () {
+    var objitem = new Object();
+    objitem.item = {"@name": "lasteventid", "@value": "" + LongPollingJSFun.eventid + ""};
+    var objreq = new Object();
+    objreq.request = objitem;
+    return JSON.stringify(objreq);
+};
+module.exports = function (RED) {
+    function LongPollingNode(config) {
+        RED.nodes.createNode(this, config);
+        var node = this;
+        LongPollingJSFun.eventid = 0;
+        LongPollingJSFun.pending = false;
+        node.status({});
+        this.on('input', function (msg) {
+            if(LongPollingJSFun.pending)
+                return;
+            var url = msg.url;
+            var port = msg.port;
+            var username = msg.username;
+            var pwd = msg.pwd;
+            var statusNode = this;
+            var flag = msg.flag;
+            var encodestr = msg.encodestr;
+            if (flag === 'encode') {
+                if (typeof url === 'undefined' || typeof port === 'undefined' || url === '' || port === '') {
+                    statusNode.status({fill: "red", shape: "ring", text: "miss server parameters"});
+                    return;
+                }
+                var decoder = new Buffer(encodestr, 'base64').toString();
+                username = decoder.split("$")[0];
+                pwd = decoder.split("$")[1];
+            } else if (typeof url === 'undefined' || typeof port === 'undefined' || typeof username === 'undefined' || typeof pwd === 'undefined' ||
+                    url === '' || port === '' || username === '' || pwd === '') {
+                statusNode.status({fill: "red", shape: "ring", text: "miss server parameters"});
+                return;
+            }
+            statusNode.status({fill: "green", shape: "ring", text: "pending"});
+            longpolling(node, msg, url, port, username, pwd, statusNode);
+        });
+    }
+
+    function longpolling(node, msg, url, port, username, pwd, statusNode) {
+        LongPollingJSFun.pending = true;
+        LongPollingJSFun.submit(url, port, '/webresources/EventMgmt/LongPolling/', 'post', username, pwd, LongPollingJSFun.getjsoncontentData(), function (res_success) {
+            try {
+                var obj = JSON.parse(res_success);
+                var length = parseInt(obj['result']['item'].length);
+                for (var index = 0; index < length; index++) {
+                    msg.payload = obj['result']['item'][index];
+                    node.send(msg);
+                    LongPollingJSFun.eventid = obj['result']['item'][index]['eventID'];
+                }                
+            } catch (e) {
+            }
+            LongPollingJSFun.pending = false;
+            longpolling(node, msg, url, port, username, pwd, statusNode);
+        }, function (res_error) {
+            statusNode.status({fill: "red", shape: "ring", text: res_error});
+            LongPollingJSFun.pending = false;
+        });
+    };
+    
+
+    RED.nodes.registerType("LongPolling", LongPollingNode);
+};

@@ -1,0 +1,49 @@
+{
+  "name": "node-red-contrib-susiaccess3.1",
+  "version": "0.0.26",
+  "description": "SUSIAccess 3.1 for node-red",
+  "dependencies": {
+    "ws": "0.4.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tungyi/node-red-contrib-susiaccess3.1.git"
+  },
+  "keywords": [
+    "susiaccess"
+  ],
+  "homepage": "https://github.com/tungyi/node-red-contrib-susiaccess3.1",
+  "node-red": {
+    "nodes": {
+      "ServerSetting": "ServerSetting/ServerSetting.js",
+      "SWData": "SWM Query/SWData/SWData.js",
+      "HWData": "HWM Query/HWData/HWData.js",
+      "HDDData": "HWM Query/HDDData/HDDData.js",
+      "BootTime": "HWM Query/BootTime/BootTime.js",
+      "NetworkData": "HWM Query/NetworkData/NetworkData.js",
+      "GWSensor": "Device Query/GWSensor/GWSensor.js",
+      "SUSIControl": "Device Query/SUSIControl/SUSIControl.js",
+      "HDDMonitor": "Device Query/HDDMonitor/HDDMonitor.js",
+      "ProcessMonitor": "Device Query/ProcessMonitor/ProcessMonitor.js",
+      "NetMonitor": "Device Query/NetMonitor/NetMonitor.js",
+      "PowerCtrl": "PowerCtrl/PowerCtrl.js",
+      "ProtectCtrl": "ProtectCtrl/ProtectCtrl.js",
+      "AcronisCtrl": "AcronisCtrl/AcronisCtrl.js",
+      "ScreenShot": "ScreenShot/ScreenShot.js",
+      "SUSICtrlSet": "SUSICtrlSet/SUSICtrlSet.js",
+      "EmailSend": "EmailSend/EmailSend.js",
+      "SMSSend": "SMSSend/SMSSend.js",
+      "LongPolling": "LongPolling/LongPolling.js",
+      "WSRetrieve": "WSRetrieve/WSRetrieve.js",
+      "WSServer": "WSServer/WSServer.js",
+      "DBCreate": "DatabaseCtrl/DBCreate/DBCreate.js",
+      "DBInsert": "DatabaseCtrl/DBInsert/DBInsert.js",
+      "DBQuery": "DatabaseCtrl/DBQuery/DBQuery.js",
+      "DBDelete": "DatabaseCtrl/DBDelete/DBDelete.js",
+      "DBUpdate": "DatabaseCtrl/DBUpdate/DBUpdate.js",
+      "FileDownload": "FileDownload/FileDownload.js",
+      "DeviceGet": "DeviceGet/DeviceGet.js",
+      "SensorGet": "SensorGet/SensorGet.js"
+    }
+  }
+}

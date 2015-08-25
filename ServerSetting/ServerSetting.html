@@ -1,0 +1,64 @@
+<script>
+    function ServerSetting_encode(item){
+        var username = $('#node-sa-input-user').val();
+        var pwd = $('#node-sa-input-pwd').val();
+        item.encodestr = btoa(username + '$' + pwd);
+    }
+</script>
+<script type="text/javascript">
+    RED.nodes.registerType('ServerSetting', {
+        category: 'SUSIAccess',
+        color: 'rgb(230, 161, 5)',
+        defaults: {
+            url: {value: "localhost"},
+            port: {value: "8080"},
+            encodestr: {value: ""},
+            flag: {value: "encode"}
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "accel.png",
+        label: function () {
+            return this.name || "ServerSetting";
+        },
+        oneditprepare: function () {
+            $('#node-input-name').val(this.name);
+            $('#node-sa-input-url').val(this.url);
+            $('#node-sa-input-port').val(this.port);
+            $('#node-sa-input-user').val(this.username);
+            //$('#node-sa-input-pwd').val(this.pwd);
+        },
+        oneditsave: function () {
+            this.name = $('#node-input-name').val();
+            this.url = $('#node-sa-input-url').val();
+            this.port = $('#node-sa-input-port').val();
+            this.username = $('#node-sa-input-user').val();
+            //this.pwd = $('#node-sa-input-pwd').val();
+            ServerSetting_encode(this);
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="ServerSetting">
+    <div class="form-row">
+    <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+    <input type="text" id="node-input-name" placeholder="Node Name">
+    </div>
+    <div class="form-row">
+    <label for="node-sa-input-url"><i class="fa fa-globe"></i> URL</label>
+    <input type="text" id="node-sa-input-url" placeholder="http://" style = "width: 40%">
+    <input type="text" id="node-sa-input-port" placeholder="port" style="width: 70px">
+    </div>
+    <div class="form-row">
+    <label for="node-sa-input-user"><i class="fa fa-user"></i> Username</label>
+    <input type="text" id="node-sa-input-user" placeholder="User Name">
+    </div>
+    <div class="form-row">
+    <label for="node-sa-input-pwd"><i class="fa fa-lock"></i> Password</label>
+    <input type="password" id="node-sa-input-pwd" placeholder="Password">
+    </div>     
+</script>
+
+<script type="text/x-red" data-help-name="ServerSetting">
+    <p>Set url, port, username and password for SUSIAccess.</p>
+</script>
