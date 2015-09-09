@@ -16,12 +16,23 @@ DBQueryJSFun.sethttpOption = function (host, port, path, method, user, pwd) {
     DBQueryJSFun.options.path = path;
     DBQueryJSFun.options.method = method;
     DBQueryJSFun.options.headers.Authorization = 'Basic ' + new Buffer(user + ":" + pwd).toString('base64');
+    DBQueryJSFun.options.headers.Accesstoken = '';
+    return DBQueryJSFun.options;
+};
+
+DBQueryJSFun.sethttpOption_token = function (host, port, path, method, token) {
+    DBQueryJSFun.options.host = host;
+    DBQueryJSFun.options.port = port;
+    DBQueryJSFun.options.path = path;
+    DBQueryJSFun.options.method = method;
+    DBQueryJSFun.options.headers.Authorization = '';
+    DBQueryJSFun.options.headers.Accesstoken = 'Bearer ' + token;
     return DBQueryJSFun.options;
 };
 
 DBQueryJSFun.submit = function (url, port, path, method, username, pwd, jsonStringData, res_success, res_error) {
-    var options = this.sethttpOption(url, port, path, method, username, pwd);
-    var req = http.request(options, function (response) {
+//    var options = this.sethttpOption(url, port, path, method, username, pwd);
+    var req = http.request(DBQueryJSFun.options, function (response) {
         var str = '';
         response.on('data', function (chunk) {
             str += chunk;
@@ -88,22 +99,22 @@ DBQueryJSFun.getjsoncontentData = function (config) {
         var fieldName = orderBy[index].name;
         var type = orderBy[index].type;
         ordersArray.push({"@tableField": "" + tablename + "." + fieldName + "",
-         "@value": "" + type + ""});
+            "@value": "" + type + ""});
     }
     objselectfielditem.item = fieldArray;
     objcondsitem.item = condsArray;
     objordersitem.item = ordersArray;
     var objFields = new Object();
-    if(selectFields.length !== 0)
+    if (selectFields.length !== 0)
         objFields.selectFields = objselectfielditem;
     objFields.condictions_op = cond_op;
-    if(condictions.length !== 0)
+    if (condictions.length !== 0)
         objFields.condictions = objcondsitem;
-    if(offset !== '')
+    if (offset !== '')
         objFields.offset = {"@value": "" + offset + ""};
-    if(limit !== '')
+    if (limit !== '')
         objFields.limit = {"@value": "" + limit + ""};
-    if(orderBy.length !== 0)
+    if (orderBy.length !== 0)
         objFields.orderBy = objordersitem;
     var objreq = new Object();
     objreq.request = objFields;
@@ -122,18 +133,31 @@ module.exports = function (RED) {
             var pwd = msg.pwd;
             var flag = msg.flag;
             var encodestr = msg.encodestr;
+            var token = msg.token;
+            var connectype = msg.connectype;
             if (flag === 'encode') {
                 if (typeof url === 'undefined' || typeof port === 'undefined' || url === '' || port === '') {
                     node.status({fill: "red", shape: "ring", text: "miss server parameters"});
                     return;
                 }
-                var decoder = new Buffer(encodestr, 'base64').toString();
-                username = decoder.split("$")[0];
-                pwd = decoder.split("$")[1];
-            } else if (typeof url === 'undefined' || typeof port === 'undefined' || typeof username === 'undefined' || typeof pwd === 'undefined' ||
-                    url === '' || port === '' || username === '' || pwd === '') {
-                node.status({fill: "red", shape: "ring", text: "miss server parameters"});
-                return;
+                switch (connectype) {
+                    case 'basic':
+                        var decoder = new Buffer(encodestr, 'base64').toString();
+                        username = decoder.split("$")[0];
+                        pwd = decoder.split("$")[1];
+                        DBQueryJSFun.options = DBQueryJSFun.sethttpOption(url, port, '/webresources/SQLMgmt/Query', 'post', username, pwd);
+                        break;
+                    case 'oauth':
+                        DBQueryJSFun.options = DBQueryJSFun.sethttpOption_token(url, port, '/webresources/SQLMgmt/Query', 'post', token);
+                        break;
+                }
+            } else {
+                if (typeof url === 'undefined' || typeof port === 'undefined' || typeof username === 'undefined' || typeof pwd === 'undefined' ||
+                        url === '' || port === '' || username === '' || pwd === '') {
+                    node.status({fill: "red", shape: "ring", text: "miss server parameters"});
+                    return;
+                }
+                DBQueryJSFun.options = DBQueryJSFun.sethttpOption(url, port, '/webresources/SQLMgmt/Query', 'post', username, pwd);
             }
 
             if (typeof msg.tablename !== 'undefined' && msg.tablename !== '')

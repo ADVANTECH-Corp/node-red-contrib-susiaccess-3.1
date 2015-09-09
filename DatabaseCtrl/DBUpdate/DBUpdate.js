@@ -16,12 +16,23 @@ DBUpdateJSFun.sethttpOption = function (host, port, path, method, user, pwd) {
     DBUpdateJSFun.options.path = path;
     DBUpdateJSFun.options.method = method;
     DBUpdateJSFun.options.headers.Authorization = 'Basic ' + new Buffer(user + ":" + pwd).toString('base64');
+    DBUpdateJSFun.options.headers.Accesstoken = '';
+    return DBUpdateJSFun.options;
+};
+
+DBUpdateJSFun.sethttpOption_token = function (host, port, path, method, token) {
+    DBUpdateJSFun.options.host = host;
+    DBUpdateJSFun.options.port = port;
+    DBUpdateJSFun.options.path = path;
+    DBUpdateJSFun.options.method = method;
+    DBUpdateJSFun.options.headers.Authorization = '';
+    DBUpdateJSFun.options.headers.Accesstoken = 'Bearer ' + token;
     return DBUpdateJSFun.options;
 };
 
 DBUpdateJSFun.submit = function (url, port, path, method, username, pwd, jsonStringData, res_success, res_error) {
-    var options = this.sethttpOption(url, port, path, method, username, pwd);
-    var req = http.request(options, function (response) {
+//    var options = this.sethttpOption(url, port, path, method, username, pwd);
+    var req = http.request(DBUpdateJSFun.options, function (response) {
         var str = '';
         response.on('data', function (chunk) {
             str += chunk;
@@ -41,7 +52,7 @@ DBUpdateJSFun.getjsoncontentData = function (config) {
     var tablename = config.tablename;
     var fields = config.fields;
     var condictions_op = config.cond_op;
-    var condictions = config.conditions;    
+    var condictions = config.conditions;
     var objselectfielditem = new Object();
     var fieldArray = [];
     for (var index = 0; index < fields.length; index++) {
@@ -78,17 +89,17 @@ DBUpdateJSFun.getjsoncontentData = function (config) {
             "@value": "" + value + ""
         });
     }
-    
+
     objselectfielditem.item = fieldArray;
     objcondsitem.item = condsArray;
-    
+
     var objFields = new Object();
-    objFields.tableName = { "@value": "" + tablename + "" };
-    if(fields.length !== 0)
+    objFields.tableName = {"@value": "" + tablename + ""};
+    if (fields.length !== 0)
         objFields.fields = objselectfielditem;
     objFields.condictions_op = cond_op;
-    if(condictions.length !== 0)
-        objFields.condictions = objcondsitem;    
+    if (condictions.length !== 0)
+        objFields.condictions = objcondsitem;
     var objreq = new Object();
     objreq.request = objFields;
     return JSON.stringify(objreq);
@@ -106,18 +117,31 @@ module.exports = function (RED) {
             var pwd = msg.pwd;
             var flag = msg.flag;
             var encodestr = msg.encodestr;
+            var token = msg.token;
+            var connectype = msg.connectype;
             if (flag === 'encode') {
                 if (typeof url === 'undefined' || typeof port === 'undefined' || url === '' || port === '') {
                     node.status({fill: "red", shape: "ring", text: "miss server parameters"});
                     return;
                 }
-                var decoder = new Buffer(encodestr, 'base64').toString();
-                username = decoder.split("$")[0];
-                pwd = decoder.split("$")[1];
-            } else if (typeof url === 'undefined' || typeof port === 'undefined' || typeof username === 'undefined' || typeof pwd === 'undefined' ||
-                    url === '' || port === '' || username === '' || pwd === '') {
-                node.status({fill: "red", shape: "ring", text: "miss server parameters"});
-                return;
+                switch (connectype) {
+                    case 'basic':
+                        var decoder = new Buffer(encodestr, 'base64').toString();
+                        username = decoder.split("$")[0];
+                        pwd = decoder.split("$")[1];
+                        DBUpdateJSFun.options = DBUpdateJSFun.sethttpOption(url, port, '/webresources/SQLMgmt/Update', 'post', username, pwd);
+                        break;
+                    case 'oauth':
+                        DBUpdateJSFun.options = DBUpdateJSFun.sethttpOption_token(url, port, '/webresources/SQLMgmt/Update', 'post', token);
+                        break;
+                }
+            } else {
+                if (typeof url === 'undefined' || typeof port === 'undefined' || typeof username === 'undefined' || typeof pwd === 'undefined' ||
+                        url === '' || port === '' || username === '' || pwd === '') {
+                    node.status({fill: "red", shape: "ring", text: "miss server parameters"});
+                    return;
+                }
+                DBUpdateJSFun.options = DBUpdateJSFun.sethttpOption(url, port, '/webresources/SQLMgmt/Update', 'post', username, pwd);
             }
 
             if (typeof msg.tablename !== 'undefined' && msg.tablename !== '')

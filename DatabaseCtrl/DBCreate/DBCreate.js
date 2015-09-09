@@ -16,12 +16,23 @@ DBCreateJSFun.sethttpOption = function (host, port, path, method, user, pwd) {
     DBCreateJSFun.options.path = path;
     DBCreateJSFun.options.method = method;
     DBCreateJSFun.options.headers.Authorization = 'Basic ' + new Buffer(user + ":" + pwd).toString('base64');
+    DBCreateJSFun.options.headers.Accesstoken = '';
+    return DBCreateJSFun.options;
+};
+
+DBCreateJSFun.sethttpOption_token = function (host, port, path, method, token) {
+    DBCreateJSFun.options.host = host;
+    DBCreateJSFun.options.port = port;
+    DBCreateJSFun.options.path = path;
+    DBCreateJSFun.options.method = method;
+    DBCreateJSFun.options.headers.Authorization = '';
+    DBCreateJSFun.options.headers.Accesstoken = 'Bearer ' + token;
     return DBCreateJSFun.options;
 };
 
 DBCreateJSFun.submit = function (url, port, path, method, username, pwd, jsonStringData, res_success, res_error) {
-    var options = this.sethttpOption(url, port, path, method, username, pwd);
-    var req = http.request(options, function (response) {
+//    var options = this.sethttpOption(url, port, path, method, username, pwd);
+    var req = http.request(DBCreateJSFun.options, function (response) {
         var str = '';
         response.on('data', function (chunk) {
             str += chunk;
@@ -73,24 +84,37 @@ module.exports = function (RED) {
             var pwd = msg.pwd;
             var flag = msg.flag;
             var encodestr = msg.encodestr;
+            var token = msg.token;
+            var connectype = msg.connectype;
             if (flag === 'encode') {
                 if (typeof url === 'undefined' || typeof port === 'undefined' || url === '' || port === '') {
                     node.status({fill: "red", shape: "ring", text: "miss server parameters"});
                     return;
                 }
-                var decoder = new Buffer(encodestr, 'base64').toString();
-                username = decoder.split("$")[0];
-                pwd = decoder.split("$")[1];
-            } else if (typeof url === 'undefined' || typeof port === 'undefined' || typeof username === 'undefined' || typeof pwd === 'undefined' ||
-                    url === '' || port === '' || username === '' || pwd === '') {
-                node.status({fill: "red", shape: "ring", text: "miss server parameters"});
-                return;
+                switch (connectype) {
+                    case 'basic':
+                        var decoder = new Buffer(encodestr, 'base64').toString();
+                        username = decoder.split("$")[0];
+                        pwd = decoder.split("$")[1];
+                        DBCreateJSFun.options = DBCreateJSFun.sethttpOption(url, port, '/webresources/SQLMgmt/CreateTable', 'post', username, pwd);
+                        break;
+                    case 'oauth':
+                        DBCreateJSFun.options = DBCreateJSFun.sethttpOption_token(url, port, '/webresources/SQLMgmt/CreateTable', 'post', token);
+                        break;
+                }
+            } else {
+                if (typeof url === 'undefined' || typeof port === 'undefined' || typeof username === 'undefined' || typeof pwd === 'undefined' ||
+                        url === '' || port === '' || username === '' || pwd === '') {
+                    node.status({fill: "red", shape: "ring", text: "miss server parameters"});
+                    return;
+                }
+                DBCreateJSFun.options = DBCreateJSFun.sethttpOption(url, port, '/webresources/SQLMgmt/CreateTable', 'post', username, pwd);
             }
-            if(typeof msg.tablename !== 'undefined' && msg.tablename !== '')
+            if (typeof msg.tablename !== 'undefined' && msg.tablename !== '')
                 config.tablename = msg.tablename;
-            if(typeof msg.fields !== 'undefined' && msg.fields !== '')
+            if (typeof msg.fields !== 'undefined' && msg.fields !== '')
                 config.data = msg.fields;
-            if(typeof config.tablename === 'undefined' || config.tablename === ''){
+            if (typeof config.tablename === 'undefined' || config.tablename === '') {
                 node.status({fill: "red", shape: "ring", text: "miss table name parameters"});
                 return;
             }

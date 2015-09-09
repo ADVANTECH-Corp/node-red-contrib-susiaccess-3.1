@@ -16,12 +16,23 @@ DBDeleteJSFun.sethttpOption = function (host, port, path, method, user, pwd) {
     DBDeleteJSFun.options.path = path;
     DBDeleteJSFun.options.method = method;
     DBDeleteJSFun.options.headers.Authorization = 'Basic ' + new Buffer(user + ":" + pwd).toString('base64');
+    DBDeleteJSFun.options.headers.Accesstoken = '';
+    return DBDeleteJSFun.options;
+};
+
+DBDeleteJSFun.sethttpOption_token = function (host, port, path, method, token) {
+    DBDeleteJSFun.options.host = host;
+    DBDeleteJSFun.options.port = port;
+    DBDeleteJSFun.options.path = path;
+    DBDeleteJSFun.options.method = method;
+    DBDeleteJSFun.options.headers.Authorization = '';
+    DBDeleteJSFun.options.headers.Accesstoken = 'Bearer ' + token;
     return DBDeleteJSFun.options;
 };
 
 DBDeleteJSFun.submit = function (url, port, path, method, username, pwd, jsonStringData, res_success, res_error) {
-    var options = this.sethttpOption(url, port, path, method, username, pwd);
-    var req = http.request(options, function (response) {
+//    var options = this.sethttpOption(url, port, path, method, username, pwd);
+    var req = http.request(DBDeleteJSFun.options, function (response) {
         var str = '';
         response.on('data', function (chunk) {
             str += chunk;
@@ -40,7 +51,7 @@ DBDeleteJSFun.submit = function (url, port, path, method, username, pwd, jsonStr
 DBDeleteJSFun.getjsoncontentData = function (config) {
     var tablename = config.tablename;
     var condictions_op = config.cond_op;
-    var condictions = config.conditions;    
+    var condictions = config.conditions;
     var cond_op = {"@value": "" + condictions_op + ""};
     var objcondsitem = new Object();
     var condsArray = [];
@@ -73,9 +84,9 @@ DBDeleteJSFun.getjsoncontentData = function (config) {
 
     objcondsitem.item = condsArray;
     var objFields = new Object();
-    objFields.tableName = {"@value": "" + tablename + "" };
+    objFields.tableName = {"@value": "" + tablename + ""};
     objFields.condictions_op = cond_op;
-    if(condictions.length !== 0)
+    if (condictions.length !== 0)
         objFields.condictions = objcondsitem;
     var objreq = new Object();
     objreq.request = objFields;
@@ -94,18 +105,31 @@ module.exports = function (RED) {
             var pwd = msg.pwd;
             var flag = msg.flag;
             var encodestr = msg.encodestr;
+            var token = msg.token;
+            var connectype = msg.connectype;
             if (flag === 'encode') {
                 if (typeof url === 'undefined' || typeof port === 'undefined' || url === '' || port === '') {
                     node.status({fill: "red", shape: "ring", text: "miss server parameters"});
                     return;
                 }
-                var decoder = new Buffer(encodestr, 'base64').toString();
-                username = decoder.split("$")[0];
-                pwd = decoder.split("$")[1];
-            } else if (typeof url === 'undefined' || typeof port === 'undefined' || typeof username === 'undefined' || typeof pwd === 'undefined' ||
-                    url === '' || port === '' || username === '' || pwd === '') {
-                node.status({fill: "red", shape: "ring", text: "miss server parameters"});
-                return;
+                switch (connectype) {
+                    case 'basic':
+                        var decoder = new Buffer(encodestr, 'base64').toString();
+                        username = decoder.split("$")[0];
+                        pwd = decoder.split("$")[1];
+                        DBDeleteJSFun.options = DBDeleteJSFun.sethttpOption(url, port, '/webresources/SQLMgmt/Delete', 'post', username, pwd);
+                        break;
+                    case 'oauth':
+                        DBDeleteJSFun.options = DBDeleteJSFun.sethttpOption_token(url, port, '/webresources/SQLMgmt/Delete', 'post', token);
+                        break;
+                }
+            } else {
+                if (typeof url === 'undefined' || typeof port === 'undefined' || typeof username === 'undefined' || typeof pwd === 'undefined' ||
+                        url === '' || port === '' || username === '' || pwd === '') {
+                    node.status({fill: "red", shape: "ring", text: "miss server parameters"});
+                    return;
+                }
+                DBDeleteJSFun.options = DBDeleteJSFun.sethttpOption(url, port, '/webresources/SQLMgmt/Delete', 'post', username, pwd);
             }
 
             if (typeof msg.tablename !== 'undefined' && msg.tablename !== '')
@@ -118,7 +142,7 @@ module.exports = function (RED) {
                 node.status({fill: "red", shape: "ring", text: "miss table name parameters"});
                 return;
             }
-            
+
             DBDeleteJSFun.submit(url, port, '/webresources/SQLMgmt/Delete', 'post', username, pwd, DBDeleteJSFun.getjsoncontentData(config), function (res_success) {
                 msg.payload = res_success;
                 node.send(msg);
