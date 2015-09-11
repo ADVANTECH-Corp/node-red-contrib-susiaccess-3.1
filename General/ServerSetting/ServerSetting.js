@@ -142,9 +142,9 @@ module.exports = function (RED) {
             credentials.code = code;
             credentials.token = '';
             RED.nodes.addCredentials(req.params.id, credentials);
-            res.send('authized, please go back Node Red.');
+            res.send('Authorized, please go back Node Red.');
         } else {
-            res.send('authized fail, error.');
+            res.send('Authorized fail, error.');
         }
     });
 };

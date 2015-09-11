@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-susiaccess3.1",
-  "version": "0.0.31",
+  "version": "0.0.32",
   "description": "SUSIAccess 3.1 for node-red",
   "dependencies": {
     "ws": "0.4.2"
