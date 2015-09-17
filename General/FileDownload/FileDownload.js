@@ -10,7 +10,7 @@ module.exports = function (RED) {
             if (typeof msg.filename !== 'undefined' && msg.filename !== '')
                 config.filename = msg.filename;
             try {
-                
+
                 var downloadurl = msg.downloadurl;
                 if (typeof downloadurl === 'undefined' || downloadurl === '') {
                     node.status({fill: "red", shape: "ring", text: "download url parameter is empty"});
@@ -18,12 +18,14 @@ module.exports = function (RED) {
                 }
 
                 if (typeof msg.filename !== 'undefined' && msg.filename !== '')
-                config.filename = msg.filename; 
-                
+                    config.filename = msg.filename;
+
                 var file = fs.createWriteStream(config.filename);
                 var request = http.get(downloadurl, function (response) {
                     response.pipe(file);
-                });
+                }).on('error', function (error) {
+                    node.status({fill: "red", shape: "ring", text: error.errno});
+                });                
             } catch (e) {
                 node.status({fill: "red", shape: "ring", text: "Unexpected error"});
             }
