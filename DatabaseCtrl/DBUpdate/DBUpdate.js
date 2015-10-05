@@ -129,10 +129,10 @@ module.exports = function (RED) {
                         var decoder = new Buffer(encodestr, 'base64').toString();
                         username = decoder.split("$")[0];
                         pwd = decoder.split("$")[1];
-                        DBUpdateJSFun.options = DBUpdateJSFun.sethttpOption(url, port, '/webresources/SQLMgmt/Update', 'post', username, pwd);
+                        DBUpdateJSFun.options = DBUpdateJSFun.sethttpOption(url, port, '/webresources/SQLMgmt/updateData', 'post', username, pwd);
                         break;
                     case 'oauth':
-                        DBUpdateJSFun.options = DBUpdateJSFun.sethttpOption_token(url, port, '/webresources/SQLMgmt/Update', 'post', token);
+                        DBUpdateJSFun.options = DBUpdateJSFun.sethttpOption_token(url, port, '/webresources/SQLMgmt/updateData', 'post', token);
                         break;
                 }
             } else {
@@ -141,7 +141,7 @@ module.exports = function (RED) {
                     node.status({fill: "red", shape: "ring", text: "miss server parameters"});
                     return;
                 }
-                DBUpdateJSFun.options = DBUpdateJSFun.sethttpOption(url, port, '/webresources/SQLMgmt/Update', 'post', username, pwd);
+                DBUpdateJSFun.options = DBUpdateJSFun.sethttpOption(url, port, '/webresources/SQLMgmt/updateData', 'post', username, pwd);
             }
 
             if (typeof msg.tablename !== 'undefined' && msg.tablename !== '')
@@ -155,7 +155,7 @@ module.exports = function (RED) {
                 return;
             }
 
-            DBUpdateJSFun.submit(url, port, '/webresources/SQLMgmt/Update', 'post', username, pwd, DBUpdateJSFun.getjsoncontentData(config), function (res_success) {
+            DBUpdateJSFun.submit(url, port, '/webresources/SQLMgmt/updateData', 'post', username, pwd, DBUpdateJSFun.getjsoncontentData(config), function (res_success) {
                 msg.payload = res_success;
                 node.send(msg);
                 node.status({fill: "green", shape: "dot", text: 'done'});

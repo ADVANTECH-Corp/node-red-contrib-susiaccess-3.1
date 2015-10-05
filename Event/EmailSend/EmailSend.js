@@ -159,17 +159,17 @@ module.exports = function (RED) {
                                 var decoder = new Buffer(encodestr, 'base64').toString();
                                 username = decoder.split("$")[0];
                                 pwd = decoder.split("$")[1];
-                                EmailSendJSFun.options = EmailSendJSFun.sethttpOption(url, port, '/webresources/SettingMgmt/MailTest', 'post', username, pwd);
+                                EmailSendJSFun.options = EmailSendJSFun.sethttpOption(url, port, '/webresources/MsgNotify/sendEMail', 'post', username, pwd);
                                 break;
                             case 'oauth':
-                                EmailSendJSFun.options = EmailSendJSFun.sethttpOption_token(url, port, '/webresources/SettingMgmt/MailTest', 'post', token);
+                                EmailSendJSFun.options = EmailSendJSFun.sethttpOption_token(url, port, '/webresources/MsgNotify/sendEMail', 'post', token);
                                 break;
                         }
                     } else {
-                        EmailSendJSFun.options = EmailSendJSFun.sethttpOption(url, port, '/webresources/SettingMgmt/MailTest', 'post', username, pwd);
+                        EmailSendJSFun.options = EmailSendJSFun.sethttpOption(url, port, '/webresources/MsgNotify/sendEMail', 'post', username, pwd);
                     }
                     var obj = JSON.parse(res_success);
-                    EmailSendJSFun.submit(url, port, '/webresources/SettingMgmt/MailTest', 'post', username, pwd, EmailSendJSFun.getjsoncontentData(config, smtpaccount, obj['result']['encryptPwd']), function (send_success) {
+                    EmailSendJSFun.submit(url, port, '/webresources/MsgNotify/sendEMail', 'post', username, pwd, EmailSendJSFun.getjsoncontentData(config, smtpaccount, obj['result']['encryptPwd']), function (send_success) {
                         msg.payload = send_success;
                         node.send(msg);
                         node.status({fill: "green", shape: "dot", text: "done"});

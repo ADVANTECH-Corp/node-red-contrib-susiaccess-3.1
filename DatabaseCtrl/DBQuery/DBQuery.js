@@ -145,10 +145,10 @@ module.exports = function (RED) {
                         var decoder = new Buffer(encodestr, 'base64').toString();
                         username = decoder.split("$")[0];
                         pwd = decoder.split("$")[1];
-                        DBQueryJSFun.options = DBQueryJSFun.sethttpOption(url, port, '/webresources/SQLMgmt/Query', 'post', username, pwd);
+                        DBQueryJSFun.options = DBQueryJSFun.sethttpOption(url, port, '/webresources/SQLMgmt/qryData', 'post', username, pwd);
                         break;
                     case 'oauth':
-                        DBQueryJSFun.options = DBQueryJSFun.sethttpOption_token(url, port, '/webresources/SQLMgmt/Query', 'post', token);
+                        DBQueryJSFun.options = DBQueryJSFun.sethttpOption_token(url, port, '/webresources/SQLMgmt/qryData', 'post', token);
                         break;
                 }
             } else {
@@ -157,7 +157,7 @@ module.exports = function (RED) {
                     node.status({fill: "red", shape: "ring", text: "miss server parameters"});
                     return;
                 }
-                DBQueryJSFun.options = DBQueryJSFun.sethttpOption(url, port, '/webresources/SQLMgmt/Query', 'post', username, pwd);
+                DBQueryJSFun.options = DBQueryJSFun.sethttpOption(url, port, '/webresources/SQLMgmt/qryData', 'post', username, pwd);
             }
 
             if (typeof msg.tablename !== 'undefined' && msg.tablename !== '')
@@ -171,7 +171,7 @@ module.exports = function (RED) {
                 return;
             }
 
-            DBQueryJSFun.submit(url, port, '/webresources/SQLMgmt/Query', 'post', username, pwd, DBQueryJSFun.getjsoncontentData(config), function (res_success) {
+            DBQueryJSFun.submit(url, port, '/webresources/SQLMgmt/qryData', 'post', username, pwd, DBQueryJSFun.getjsoncontentData(config), function (res_success) {
                 msg.payload = res_success;
                 node.send(msg);
                 node.status({fill: "green", shape: "dot", text: 'done'});

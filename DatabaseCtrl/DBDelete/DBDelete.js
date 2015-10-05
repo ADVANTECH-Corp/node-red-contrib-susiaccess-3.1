@@ -117,10 +117,10 @@ module.exports = function (RED) {
                         var decoder = new Buffer(encodestr, 'base64').toString();
                         username = decoder.split("$")[0];
                         pwd = decoder.split("$")[1];
-                        DBDeleteJSFun.options = DBDeleteJSFun.sethttpOption(url, port, '/webresources/SQLMgmt/Delete', 'post', username, pwd);
+                        DBDeleteJSFun.options = DBDeleteJSFun.sethttpOption(url, port, '/webresources/SQLMgmt/delData', 'post', username, pwd);
                         break;
                     case 'oauth':
-                        DBDeleteJSFun.options = DBDeleteJSFun.sethttpOption_token(url, port, '/webresources/SQLMgmt/Delete', 'post', token);
+                        DBDeleteJSFun.options = DBDeleteJSFun.sethttpOption_token(url, port, '/webresources/SQLMgmt/delData', 'post', token);
                         break;
                 }
             } else {
@@ -129,7 +129,7 @@ module.exports = function (RED) {
                     node.status({fill: "red", shape: "ring", text: "miss server parameters"});
                     return;
                 }
-                DBDeleteJSFun.options = DBDeleteJSFun.sethttpOption(url, port, '/webresources/SQLMgmt/Delete', 'post', username, pwd);
+                DBDeleteJSFun.options = DBDeleteJSFun.sethttpOption(url, port, '/webresources/SQLMgmt/delData', 'post', username, pwd);
             }
 
             if (typeof msg.tablename !== 'undefined' && msg.tablename !== '')
@@ -143,7 +143,7 @@ module.exports = function (RED) {
                 return;
             }
 
-            DBDeleteJSFun.submit(url, port, '/webresources/SQLMgmt/Delete', 'post', username, pwd, DBDeleteJSFun.getjsoncontentData(config), function (res_success) {
+            DBDeleteJSFun.submit(url, port, '/webresources/SQLMgmt/delData', 'post', username, pwd, DBDeleteJSFun.getjsoncontentData(config), function (res_success) {
                 msg.payload = res_success;
                 node.send(msg);
                 node.status({fill: "green", shape: "dot", text: 'done'});

@@ -91,10 +91,10 @@ module.exports = function (RED) {
                         var decoder = new Buffer(encodestr, 'base64').toString();
                         username = decoder.split("$")[0];
                         pwd = decoder.split("$")[1];
-                        DBInsertJSFun.options = DBInsertJSFun.sethttpOption(url, port, '/webresources/SQLMgmt/Insert', 'post', username, pwd);
+                        DBInsertJSFun.options = DBInsertJSFun.sethttpOption(url, port, '/webresources/SQLMgmt/insertData', 'post', username, pwd);
                         break;
                     case 'oauth':
-                        DBInsertJSFun.options = DBInsertJSFun.sethttpOption_token(url, port, '/webresources/SQLMgmt/Insert', 'post', token);
+                        DBInsertJSFun.options = DBInsertJSFun.sethttpOption_token(url, port, '/webresources/SQLMgmt/insertData', 'post', token);
                         break;
                 }
             } else {
@@ -103,7 +103,7 @@ module.exports = function (RED) {
                     node.status({fill: "red", shape: "ring", text: "miss server parameters"});
                     return;
                 }
-                DBInsertJSFun.options = DBInsertJSFun.sethttpOption(url, port, '/webresources/SQLMgmt/Insert', 'post', username, pwd);
+                DBInsertJSFun.options = DBInsertJSFun.sethttpOption(url, port, '/webresources/SQLMgmt/insertData', 'post', username, pwd);
             }
 
             if (typeof msg.tablename !== 'undefined' && msg.tablename !== '')
@@ -116,7 +116,7 @@ module.exports = function (RED) {
                 node.status({fill: "red", shape: "ring", text: "miss table name parameters"});
                 return;
             }
-            DBInsertJSFun.submit(url, port, '/webresources/SQLMgmt/Insert', 'post', username, pwd, DBInsertJSFun.getjsoncontentData(config), function (res_success) {
+            DBInsertJSFun.submit(url, port, '/webresources/SQLMgmt/insertData', 'post', username, pwd, DBInsertJSFun.getjsoncontentData(config), function (res_success) {
                 msg.payload = res_success;
                 node.send(msg);
                 node.status({fill: "green", shape: "dot", text: 'done'});

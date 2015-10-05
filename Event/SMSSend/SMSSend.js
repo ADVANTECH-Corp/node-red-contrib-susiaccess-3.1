@@ -133,17 +133,17 @@ module.exports = function (RED) {
                                 var decoder = new Buffer(encodestr, 'base64').toString();
                                 username = decoder.split("$")[0];
                                 pwd = decoder.split("$")[1];
-                                SMSSendJSFun.options = SMSSendJSFun.sethttpOption(url, port, '/webresources/SettingMgmt/SMSTest', 'post', username, pwd);
+                                SMSSendJSFun.options = SMSSendJSFun.sethttpOption(url, port, '/webresources/MsgNotify/sendSMS', 'post', username, pwd);
                                 break;
                             case 'oauth':
-                                SMSSendJSFun.options = SMSSendJSFun.sethttpOption_token(url, port, '/webresources/SettingMgmt/SMSTest', 'post', token);
+                                SMSSendJSFun.options = SMSSendJSFun.sethttpOption_token(url, port, '/webresources/MsgNotify/sendSMS', 'post', token);
                                 break;
                         }
                     } else {
-                        SMSSendJSFun.options = SMSSendJSFun.sethttpOption(url, port, '/webresources/SettingMgmt/SMSTest', 'post', username, pwd);
+                        SMSSendJSFun.options = SMSSendJSFun.sethttpOption(url, port, '/webresources/MsgNotify/sendSMS', 'post', username, pwd);
                     }
                     var obj = JSON.parse(res_success);
-                    SMSSendJSFun.submit(url, port, '/webresources/SettingMgmt/SMSTest', 'post', username, pwd, SMSSendJSFun.getjsoncontentData(config, smsaccount, obj['result']['encryptPwd']), function (send_success) {
+                    SMSSendJSFun.submit(url, port, '/webresources/MsgNotify/sendSMS', 'post', username, pwd, SMSSendJSFun.getjsoncontentData(config, smsaccount, obj['result']['encryptPwd']), function (send_success) {
                         msg.payload = send_success;
                         node.send(msg);
                         statusNode.status({fill: "green", shape: "dot", text: "done"});

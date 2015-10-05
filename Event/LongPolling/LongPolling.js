@@ -86,10 +86,10 @@ module.exports = function (RED) {
                         var decoder = new Buffer(encodestr, 'base64').toString();
                         username = decoder.split("$")[0];
                         pwd = decoder.split("$")[1];
-                        LongPollingJSFun.options = LongPollingJSFun.sethttpOption(url, port, '/webresources/EventMgmt/LongPolling/', 'post', username, pwd);
+                        LongPollingJSFun.options = LongPollingJSFun.sethttpOption(url, port, '/webresources/EventMgmt/long-polling/', 'post', username, pwd);
                         break;
                     case 'oauth':
-                        LongPollingJSFun.options = LongPollingJSFun.sethttpOption_token(url, port, '/webresources/EventMgmt/LongPolling/', 'post', token);
+                        LongPollingJSFun.options = LongPollingJSFun.sethttpOption_token(url, port, '/webresources/EventMgmt/long-polling/', 'post', token);
                         break;
                 }
             } else {
@@ -98,7 +98,7 @@ module.exports = function (RED) {
                     statusNode.status({fill: "red", shape: "ring", text: "miss server parameters"});
                     return;
                 }
-                LongPollingJSFun.options = LongPollingJSFun.sethttpOption(url, port, '/webresources/EventMgmt/LongPolling/', 'post', username, pwd);
+                LongPollingJSFun.options = LongPollingJSFun.sethttpOption(url, port, '/webresources/EventMgmt/long-polling/', 'post', username, pwd);
             }
             statusNode.status({fill: "green", shape: "ring", text: "pending"});
             longpolling(node, msg, url, port, username, pwd, statusNode);
@@ -107,7 +107,7 @@ module.exports = function (RED) {
 
     function longpolling(node, msg, url, port, username, pwd, statusNode) {
         LongPollingJSFun.pending = true;
-        LongPollingJSFun.submit(url, port, '/webresources/EventMgmt/LongPolling/', 'post', username, pwd, LongPollingJSFun.getjsoncontentData(), function (res_success) {
+        LongPollingJSFun.submit(url, port, '/webresources/EventMgmt/long-polling/', 'post', username, pwd, LongPollingJSFun.getjsoncontentData(), function (res_success) {
             try {
                 var obj = JSON.parse(res_success);
                 var length = parseInt(obj['result']['item'].length);

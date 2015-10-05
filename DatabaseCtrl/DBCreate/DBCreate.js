@@ -96,10 +96,10 @@ module.exports = function (RED) {
                         var decoder = new Buffer(encodestr, 'base64').toString();
                         username = decoder.split("$")[0];
                         pwd = decoder.split("$")[1];
-                        DBCreateJSFun.options = DBCreateJSFun.sethttpOption(url, port, '/webresources/SQLMgmt/CreateTable', 'post', username, pwd);
+                        DBCreateJSFun.options = DBCreateJSFun.sethttpOption(url, port, '/webresources/SQLMgmt/createTable', 'post', username, pwd);
                         break;
                     case 'oauth':
-                        DBCreateJSFun.options = DBCreateJSFun.sethttpOption_token(url, port, '/webresources/SQLMgmt/CreateTable', 'post', token);
+                        DBCreateJSFun.options = DBCreateJSFun.sethttpOption_token(url, port, '/webresources/SQLMgmt/createTable', 'post', token);
                         break;
                 }
             } else {
@@ -108,7 +108,7 @@ module.exports = function (RED) {
                     node.status({fill: "red", shape: "ring", text: "miss server parameters"});
                     return;
                 }
-                DBCreateJSFun.options = DBCreateJSFun.sethttpOption(url, port, '/webresources/SQLMgmt/CreateTable', 'post', username, pwd);
+                DBCreateJSFun.options = DBCreateJSFun.sethttpOption(url, port, '/webresources/SQLMgmt/createTable', 'post', username, pwd);
             }
             if (typeof msg.tablename !== 'undefined' && msg.tablename !== '')
                 config.tablename = msg.tablename;
@@ -118,7 +118,7 @@ module.exports = function (RED) {
                 node.status({fill: "red", shape: "ring", text: "miss table name parameters"});
                 return;
             }
-            DBCreateJSFun.submit(url, port, '/webresources/SQLMgmt/CreateTable', 'post', username, pwd, DBCreateJSFun.getjsoncontentData(config), function (res_success) {
+            DBCreateJSFun.submit(url, port, '/webresources/SQLMgmt/createTable', 'post', username, pwd, DBCreateJSFun.getjsoncontentData(config), function (res_success) {
                 msg.payload = res_success;
                 node.send(msg);
                 node.status({fill: "green", shape: "dot", text: 'done'});

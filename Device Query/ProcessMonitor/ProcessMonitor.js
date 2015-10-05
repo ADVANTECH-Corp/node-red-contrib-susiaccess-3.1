@@ -34,10 +34,10 @@ module.exports = function (RED) {
                         var decoder = new Buffer(encodestr, 'base64').toString();
                         username = decoder.split("$")[0];
                         pwd = decoder.split("$")[1];                        
-                        options = sethttpOption(url, port, '/webresources/DeviceCtl/getSensorData', 'post', username, pwd);
+                        options = sethttpOption(url, port, '/webresources/DeviceCtl/getDeviceData', 'post', username, pwd);
                         break;
                     case 'oauth':
-                        options = sethttpOption_token(url, port, '/webresources/DeviceCtl/getSensorData', 'post', token);
+                        options = sethttpOption_token(url, port, '/webresources/DeviceCtl/getDeviceData', 'post', token);
                         break;
                 }
             } else {
@@ -46,7 +46,7 @@ module.exports = function (RED) {
                     node.status({fill: "red", shape: "ring", text: "miss server parameters"});
                     return;
                 }
-                options = sethttpOption(url, port, '/webresources/DeviceCtl/getSensorData', 'post', username, pwd);
+                options = sethttpOption(url, port, '/webresources/DeviceCtl/getDeviceData', 'post', username, pwd);
             }
             if (typeof msg.deviceid !== 'undefined' && msg.deviceid !== '')
                 config.deviceid = msg.deviceid;
