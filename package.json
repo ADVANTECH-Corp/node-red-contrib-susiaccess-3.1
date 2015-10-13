@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-susiaccess3.1",
-  "version": "0.0.34",
+  "version": "0.0.35",
   "description": "SUSIAccess 3.1 for node-red",
   "dependencies": {
     "ws": "0.4.2"
@@ -39,11 +39,16 @@
       "LongPolling": "Event/LongPolling/LongPolling.js",
       "WSRetrieve": "Event/WSRetrieve/WSRetrieve.js",
       "WSServer": "Event/WSServer/WSServer.js",
-      "DBCreate": "DatabaseCtrl/DBCreate/DBCreate.js",
-      "DBInsert": "DatabaseCtrl/DBInsert/DBInsert.js",
-      "DBQuery": "DatabaseCtrl/DBQuery/DBQuery.js",
-      "DBDelete": "DatabaseCtrl/DBDelete/DBDelete.js",
-      "DBUpdate": "DatabaseCtrl/DBUpdate/DBUpdate.js"        
+      "SQLCreate": "DatabaseCtrl/SQL/SQLCreate/SQLCreate.js",
+      "SQLInsert": "DatabaseCtrl/SQL/SQLInsert/SQLInsert.js",
+      "SQLQuery": "DatabaseCtrl/SQL/SQLQuery/SQLQuery.js",
+      "SQLDelete": "DatabaseCtrl/SQL/SQLDelete/SQLDelete.js",
+      "SQLUpdate": "DatabaseCtrl/SQL/SQLUpdate/SQLUpdate.js",
+      "NoSQLCreate": "DatabaseCtrl/NoSQL/NoSQLCreate/NoSQLCreate.js",
+      "NoSQLInsert": "DatabaseCtrl/NoSQL/NoSQLInsert/NoSQLInsert.js",
+      "NoSQLDelete": "DatabaseCtrl/NoSQL/NoSQLDelete/NoSQLDelete.js",
+      "NoSQLUpdate": "DatabaseCtrl/NoSQL/NoSQLUpdate/NoSQLUpdate.js",
+      "NoSQLQuery": "DatabaseCtrl/NoSQL/NoSQLQuery/NoSQLQuery.js"
     }
   },
   "readme": "# node-red-contrib-susiaccess3.1\r\nA collection of [Node-RED](http://nodered.org) nodes to Access SUSIAccess 3.1 restful API.\r\n\r\n## Install\r\nUse npm to command to install this package locally in the Node-RED modules directory\r\n```bash\r\nnpm install node-red-contrib-susiaccess3.1 \r\n```\r\n\r\n## Nodes included in the package\r\n**SWData** Retrieve software and operation system information for specific agent ID.\r\n\r\n**HWData** Retrieve hardware monitor information of values for specific agent ID.\r\n\r\n**HDDData** Retrieve hard disk information for specific agent ID.\r\n\r\n**NetworkData** Retrieve network information for specific agent ID.\r\n\r\n**GWSensor** Retreive the IoTGW sensor reported data from database, depend on sensorId existed.\r\n\r\n**SUSIControl** Retreive the SUSIControl reported data from database, depend on sensorId existed.\r\n\r\n**HDDMonitor** Retreive the HDDMonitor reported data from database, depend on sensorId existed.\r\n\r\n**ProcessMonitor** Retreive the ProcessMonitor reported data from database, depend on sensorId existed.\r\n\r\n**NetMonitor** Retreive the NetMonitor reported data from database, depend on sensorId existed.\r\n\r\n**PowerCtrl** Set device to power on, power off, sleep, hibernate, reboot.\r\n\r\n**ProtectCtrl** Set device to install/update McAfee, protect, unprotect, activate.\r\n\r\n**AcronisCtrl** Set device to install/update Acronis, backup, recovery, activate.\r\n\r\n**ScreenShot** Retrieve current screenshot for specific device.\r\n\r\n**SUSICtrlSet** Set SUSIControl value.\r\n\r\n**FileDownload** Download a url link and save to specified path.\r\n\r\n## Usage example\r\n![Node RED Flow](./node_red_example.png)\r\n```\r\n[{\"id\":\"b4dafa51.4b2508\",\"type\":\"inject\",\"name\":\"\",\"topic\":\"\",\"payload\":\"abc\",\"payloadType\":\"date\",\"repeat\":\"\",\"crontab\":\"\",\"once\":false,\"x\":123,\"y\":315,\"z\":\"402636cb.bfd9c8\",\"wires\":[[\"2b6f8405.d4907c\"]]},{\"id\":\"83616629.7c9e98\",\"type\":\"DeviceGet\",\"x\":504,\"y\":316,\"z\":\"402636cb.bfd9c8\",\"wires\":[[\"27d72fae.d828d\"]]},{\"id\":\"2b6f8405.d4907c\",\"type\":\"ServerSetting\",\"url\":\"172.22.13.25\",\"port\":\"8080\",\"encodestr\":\"YWRtaW4kYWRtaW4=\",\"flag\":\"encode\",\"x\":316,\"y\":313,\"z\":\"402636cb.bfd9c8\",\"wires\":[[\"83616629.7c9e98\",\"457bdb14.ba8424\"]]},{\"id\":\"27d72fae.d828d\",\"type\":\"debug\",\"name\":\"\",\"active\":true,\"console\":\"false\",\"complete\":\"false\",\"x\":702,\"y\":312,\"z\":\"402636cb.bfd9c8\",\"wires\":[]},{\"id\":\"457bdb14.ba8424\",\"type\":\"SensorGet\",\"deviceid\":\"\",\"x\":478,\"y\":414,\"z\":\"402636cb.bfd9c8\",\"wires\":[[\"27d72fae.d828d\"]]}]\r\n```\r\n## Authors\r\n* Advantech SUSIAccess Team",
@@ -52,8 +57,8 @@
   "bugs": {
     "url": "https://github.com/ADVANTECH-Corp/node-red-contrib-susiaccess-3.1/issues"
   },
-  "_id": "node-red-contrib-susiaccess3.1@0.0.30",
+  "_id": "node-red-contrib-susiaccess3.1@0.0.34",
   "scripts": {},
-  "_shasum": "8ebdd151e8b4a9e11ea8a4e80b67f35b7a40abff",
+  "_shasum": "36bbb4193a6e8d89e48917279ee2913f61005f73",
   "_from": "node-red-contrib-susiaccess3.1@"
 }

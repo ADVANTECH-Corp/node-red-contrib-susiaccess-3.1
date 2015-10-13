@@ -47,7 +47,7 @@
         });
     }
 
-    function DBDelete_Option(item) {
+    function SQLDelete_Option(item) {
         $('#node-sa-input-getcol').click(function () {
             var url = $('#node-sa-input-url').val();
             var port = $('#node-sa-input-port').val();
@@ -62,7 +62,7 @@
             submit('http://' + url + ':' + port + '/webresources/SQLMgmt/getTableInfo/' + tablename, 'get', '', user, pwd, function (resultstr) {
                 var obj = JSON.parse(resultstr);
                 if (typeof obj['result']['ErrorCode'] === 'undefined') {
-                    DBDeletefillCondSelectTable(obj);
+                    SQLDeletefillCondSelectTable(obj);
                 } else {
                     $('#node-sa-warnstr').html(obj['result']['ErrorCode'] + ' : ' + obj['result']['Description']);
                     $('#node-sa-warnstr').show();
@@ -122,11 +122,11 @@
             }
         });
 
-        DBDelete_restorecond_opData(item);
-        DBDelete_restoreconds(item);
+        SQLDelete_restorecond_opData(item);
+        SQLDelete_restoreconds(item);
     }
 
-    function DBDelete_restoreconds(item) {
+    function SQLDelete_restoreconds(item) {
         if (typeof item.conditions === 'undefined' || item.conditions === '')
             return;
         var conditions = item.conditions;
@@ -161,13 +161,13 @@
         $('#node-sa-input-table-condictions tr').has('td').remove();
         $('#node-sa-input-table-condictions').append(str);
     }
-    function DBDelete_restorecond_opData(item) {
+    function SQLDelete_restorecond_opData(item) {
         if (typeof item.cond_op === 'undefined' || item.cond_op === '')
             return;
         $('#node-sa-input-li-condop select').val(item.cond_op);
     }
 
-    function DBDeletefillCondSelectTable(obj) {
+    function SQLDeletefillCondSelectTable(obj) {
         var items = obj['result']['item'];
         var str = '';
         for (var index = 0; index < items.length; index++) {
@@ -179,12 +179,12 @@
         $('#node-sa-input-select-cond-name').append(str);
     }
 
-    function DBDelete_set2Data(item) {
-        DBDelete_storeCondOp(item);
-        DBDelete_storeConds(item);
+    function SQLDelete_set2Data(item) {
+        SQLDelete_storeCondOp(item);
+        SQLDelete_storeConds(item);
     }
 
-    function DBDelete_storeConds(item) {
+    function SQLDelete_storeConds(item) {
         var condsArray = [];
         $('#node-sa-input-table-condictions .data').each(function () {
             var name = $(this).attr('fieldname');
@@ -198,13 +198,13 @@
         });
         item.conditions = condsArray;
     }
-    function DBDelete_storeCondOp(item) {
+    function SQLDelete_storeCondOp(item) {
         item.cond_op = $('#node-sa-input-li-condop select').val();
     }
 </script>
 <script type="text/javascript">
-    RED.nodes.registerType('DBDelete', {
-        category: 'SA31_DBCtrl',
+    RED.nodes.registerType('SQLDelete', {
+        category: 'SA31_SQLCtrl',
         color: 'rgb(157, 181, 195)',
         defaults: {
             url: {value: "localhost"},
@@ -217,26 +217,26 @@
         outputs: 1,
         icon: "file.png",
         label: function () {
-            return this.name || "DBDelete";
+            return this.name || "SQLDelete";
         },
         oneditprepare: function () {
             $('#node-input-name').val(this.name);
             $('#node-sa-input-url').val(this.url);
             $('#node-sa-input-port').val(this.port);
             $('#node-sa-input-tablename').val(this.tablename);
-            DBDelete_Option(this);
+            SQLDelete_Option(this);
         },
         oneditsave: function () {
             this.name = $('#node-input-name').val();
             this.url = $('#node-sa-input-url').val();
             this.port = $('#node-sa-input-port').val();
             this.tablename = $('#node-sa-input-tablename').val();
-            DBDelete_set2Data(this);
+            SQLDelete_set2Data(this);
         }
     });
 </script>
 
-<script type="text/x-red" data-template-name="DBDelete">
+<script type="text/x-red" data-template-name="SQLDelete">
     <div class="form-row">
     <label for="node-input-name"><i class="icon-tag"></i> Name</label>
     <input type="text" id="node-input-name" placeholder="Node Name">
@@ -315,7 +315,7 @@
     <span style="float: right; margin-top: 5px"><a class="btn btn-mini" id="node-sa-input-addcond"><i class="fa fa-plus"></i> Add Condition</a></span>
     </div>    
 </script>
-<script type="text/x-red" data-help-name="DBDelete">
+<script type="text/x-red" data-help-name="SQLDelete">
     <p>Delete data from a existed table of SUSIAccess 3.1 postgre database. </p>
     <p>User set the server ip (<code>msg.url</code>), port (<code>msg.port</code>), username (<code>msg.username</code>) and password (<code>msg.pwd</code>).</p>
     <p>User can set the table name, condition operator and conditions under this node or set <code>msg.tablename</code>, <code>msg.cond_op</code> and <code>msg.conditions</code>. </p>

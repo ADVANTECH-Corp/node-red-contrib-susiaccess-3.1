@@ -1,6 +1,6 @@
 var http = require('http');
-var DBQueryJSFun = {};
-DBQueryJSFun.options = {
+var SQLQueryJSFun = {};
+SQLQueryJSFun.options = {
     host: 'localhost',
     port: '8080',
     path: '/webresources',
@@ -10,29 +10,29 @@ DBQueryJSFun.options = {
         'Content-Type': 'application/json'}
 };
 
-DBQueryJSFun.sethttpOption = function (host, port, path, method, user, pwd) {
-    DBQueryJSFun.options.host = host;
-    DBQueryJSFun.options.port = port;
-    DBQueryJSFun.options.path = path;
-    DBQueryJSFun.options.method = method;
-    DBQueryJSFun.options.headers.Authorization = 'Basic ' + new Buffer(user + ":" + pwd).toString('base64');
-    DBQueryJSFun.options.headers.Accesstoken = '';
-    return DBQueryJSFun.options;
+SQLQueryJSFun.sethttpOption = function (host, port, path, method, user, pwd) {
+    SQLQueryJSFun.options.host = host;
+    SQLQueryJSFun.options.port = port;
+    SQLQueryJSFun.options.path = path;
+    SQLQueryJSFun.options.method = method;
+    SQLQueryJSFun.options.headers.Authorization = 'Basic ' + new Buffer(user + ":" + pwd).toString('base64');
+    SQLQueryJSFun.options.headers.Accesstoken = '';
+    return SQLQueryJSFun.options;
 };
 
-DBQueryJSFun.sethttpOption_token = function (host, port, path, method, token) {
-    DBQueryJSFun.options.host = host;
-    DBQueryJSFun.options.port = port;
-    DBQueryJSFun.options.path = path;
-    DBQueryJSFun.options.method = method;
-    DBQueryJSFun.options.headers.Authorization = '';
-    DBQueryJSFun.options.headers.Accesstoken = 'Bearer ' + token;
-    return DBQueryJSFun.options;
+SQLQueryJSFun.sethttpOption_token = function (host, port, path, method, token) {
+    SQLQueryJSFun.options.host = host;
+    SQLQueryJSFun.options.port = port;
+    SQLQueryJSFun.options.path = path;
+    SQLQueryJSFun.options.method = method;
+    SQLQueryJSFun.options.headers.Authorization = '';
+    SQLQueryJSFun.options.headers.Accesstoken = 'Bearer ' + token;
+    return SQLQueryJSFun.options;
 };
 
-DBQueryJSFun.submit = function (url, port, path, method, username, pwd, jsonStringData, res_success, res_error) {
+SQLQueryJSFun.submit = function (url, port, path, method, username, pwd, jsonStringData, res_success, res_error) {
 //    var options = this.sethttpOption(url, port, path, method, username, pwd);
-    var req = http.request(DBQueryJSFun.options, function (response) {
+    var req = http.request(SQLQueryJSFun.options, function (response) {
         var str = '';
         response.on('data', function (chunk) {
             str += chunk;
@@ -48,7 +48,7 @@ DBQueryJSFun.submit = function (url, port, path, method, username, pwd, jsonStri
     req.end();
 };
 
-DBQueryJSFun.getjsoncontentData = function (config) {
+SQLQueryJSFun.getjsoncontentData = function (config) {
     var tablename = config.tablename;
     var selectFields = config.selectFields;
     var condictions_op = config.cond_op;
@@ -122,7 +122,7 @@ DBQueryJSFun.getjsoncontentData = function (config) {
 };
 
 module.exports = function (RED) {
-    function DBQueryNode(config) {
+    function SQLQueryNode(config) {
         RED.nodes.createNode(this, config);
         var node = this;
         node.status({});
@@ -145,10 +145,10 @@ module.exports = function (RED) {
                         var decoder = new Buffer(encodestr, 'base64').toString();
                         username = decoder.split("$")[0];
                         pwd = decoder.split("$")[1];
-                        DBQueryJSFun.options = DBQueryJSFun.sethttpOption(url, port, '/webresources/SQLMgmt/qryData', 'post', username, pwd);
+                        SQLQueryJSFun.options = SQLQueryJSFun.sethttpOption(url, port, '/webresources/SQLMgmt/qryData', 'post', username, pwd);
                         break;
                     case 'oauth':
-                        DBQueryJSFun.options = DBQueryJSFun.sethttpOption_token(url, port, '/webresources/SQLMgmt/qryData', 'post', token);
+                        SQLQueryJSFun.options = SQLQueryJSFun.sethttpOption_token(url, port, '/webresources/SQLMgmt/qryData', 'post', token);
                         break;
                 }
             } else {
@@ -157,21 +157,42 @@ module.exports = function (RED) {
                     node.status({fill: "red", shape: "ring", text: "miss server parameters"});
                     return;
                 }
-                DBQueryJSFun.options = DBQueryJSFun.sethttpOption(url, port, '/webresources/SQLMgmt/qryData', 'post', username, pwd);
+                SQLQueryJSFun.options = SQLQueryJSFun.sethttpOption(url, port, '/webresources/SQLMgmt/qryData', 'post', username, pwd);
             }
 
             if (typeof msg.tablename !== 'undefined' && msg.tablename !== '')
                 config.tablename = msg.tablename;
 
-            if (typeof msg.fields !== 'undefined' && msg.fields !== '')
-                config.data = msg.fields;
+            if (typeof msg.selectFields !== 'undefined' && msg.selectFields !== '')
+                config.selectFields = msg.selectFields;
+            
+            if (typeof msg.cond_op !== 'undefined' && msg.cond_op !== '')
+                config.cond_op = msg.cond_op;
 
-            if (typeof config.tablename === 'undefined' || config.tablename === '') {
-                node.status({fill: "red", shape: "ring", text: "miss table name parameters"});
+            if (typeof msg.conditions !== 'undefined' && msg.conditions !== '')
+                config.conditions = msg.conditions;
+            
+            if (typeof config.selectFields === 'undefined' || config.selectFields === '') {
+                node.status({fill: "red", shape: "ring", text: "miss selectFields parameters"});
+                return;
+            }
+            
+            if (typeof config.cond_op === 'undefined' || config.cond_op === '') {
+                node.status({fill: "red", shape: "ring", text: "miss cond_op parameters"});
+                return;
+            }
+            
+            if (typeof config.cond_op === 'undefined' || config.cond_op === '') {
+                node.status({fill: "red", shape: "ring", text: "miss cond_op parameters"});
+                return;
+            }
+            
+            if (typeof config.conditions === 'undefined' || config.conditions === '') {
+                node.status({fill: "red", shape: "ring", text: "miss conditions parameters"});
                 return;
             }
 
-            DBQueryJSFun.submit(url, port, '/webresources/SQLMgmt/qryData', 'post', username, pwd, DBQueryJSFun.getjsoncontentData(config), function (res_success) {
+            SQLQueryJSFun.submit(url, port, '/webresources/SQLMgmt/qryData', 'post', username, pwd, SQLQueryJSFun.getjsoncontentData(config), function (res_success) {
                 msg.payload = res_success;
                 node.send(msg);
                 node.status({fill: "green", shape: "dot", text: 'done'});
@@ -181,5 +202,5 @@ module.exports = function (RED) {
         });
     }
 
-    RED.nodes.registerType("DBQuery", DBQueryNode);
+    RED.nodes.registerType("SQLQuery", SQLQueryNode);
 };

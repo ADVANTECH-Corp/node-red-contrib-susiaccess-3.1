@@ -8,6 +8,15 @@ module.exports = function (RED) {
         RED.nodes.createNode(this, config);
         var node = this;
         node.status({});
+        this.on('close',function(){
+            if (ws !== null) {
+                try {
+                    ws.close();
+                    ws = null;
+                } catch (e) {
+                }
+            }
+        });
         this.on('input', function (msg) {
             if (ws !== null)
                 return;
@@ -53,7 +62,7 @@ module.exports = function (RED) {
                 }
             }
             statusNode.status({fill: "red", shape: "ring", text: "connecting"});
-            ws = new WebSocket(address);
+            ws = new WebSocket(address);            
             ws.on('open', function () {
                 statusNode.status({fill: "green", shape: "dot", text: "connected"});
             });
@@ -62,8 +71,7 @@ module.exports = function (RED) {
                 ws = null;
                 statusNode.status({fill: "red", shape: "ring", text: "error"});
             });
-            ws.on('close', function () {
-                ws.close();
+            ws.on('close', function () {                
                 ws = null;
                 statusNode.status({fill: "green", shape: "dot", text: "disconnected"});
             });

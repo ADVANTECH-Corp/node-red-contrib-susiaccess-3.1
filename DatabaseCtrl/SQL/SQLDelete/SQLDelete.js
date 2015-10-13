@@ -1,6 +1,6 @@
 var http = require('http');
-var DBUpdateJSFun = {};
-DBUpdateJSFun.options = {
+var SQLDeleteJSFun = {};
+SQLDeleteJSFun.options = {
     host: 'localhost',
     port: '8080',
     path: '/webresources',
@@ -10,29 +10,29 @@ DBUpdateJSFun.options = {
         'Content-Type': 'application/json'}
 };
 
-DBUpdateJSFun.sethttpOption = function (host, port, path, method, user, pwd) {
-    DBUpdateJSFun.options.host = host;
-    DBUpdateJSFun.options.port = port;
-    DBUpdateJSFun.options.path = path;
-    DBUpdateJSFun.options.method = method;
-    DBUpdateJSFun.options.headers.Authorization = 'Basic ' + new Buffer(user + ":" + pwd).toString('base64');
-    DBUpdateJSFun.options.headers.Accesstoken = '';
-    return DBUpdateJSFun.options;
+SQLDeleteJSFun.sethttpOption = function (host, port, path, method, user, pwd) {
+    SQLDeleteJSFun.options.host = host;
+    SQLDeleteJSFun.options.port = port;
+    SQLDeleteJSFun.options.path = path;
+    SQLDeleteJSFun.options.method = method;
+    SQLDeleteJSFun.options.headers.Authorization = 'Basic ' + new Buffer(user + ":" + pwd).toString('base64');
+    SQLDeleteJSFun.options.headers.Accesstoken = '';
+    return SQLDeleteJSFun.options;
 };
 
-DBUpdateJSFun.sethttpOption_token = function (host, port, path, method, token) {
-    DBUpdateJSFun.options.host = host;
-    DBUpdateJSFun.options.port = port;
-    DBUpdateJSFun.options.path = path;
-    DBUpdateJSFun.options.method = method;
-    DBUpdateJSFun.options.headers.Authorization = '';
-    DBUpdateJSFun.options.headers.Accesstoken = 'Bearer ' + token;
-    return DBUpdateJSFun.options;
+SQLDeleteJSFun.sethttpOption_token = function (host, port, path, method, token) {
+    SQLDeleteJSFun.options.host = host;
+    SQLDeleteJSFun.options.port = port;
+    SQLDeleteJSFun.options.path = path;
+    SQLDeleteJSFun.options.method = method;
+    SQLDeleteJSFun.options.headers.Authorization = '';
+    SQLDeleteJSFun.options.headers.Accesstoken = 'Bearer ' + token;
+    return SQLDeleteJSFun.options;
 };
 
-DBUpdateJSFun.submit = function (url, port, path, method, username, pwd, jsonStringData, res_success, res_error) {
+SQLDeleteJSFun.submit = function (url, port, path, method, username, pwd, jsonStringData, res_success, res_error) {
 //    var options = this.sethttpOption(url, port, path, method, username, pwd);
-    var req = http.request(DBUpdateJSFun.options, function (response) {
+    var req = http.request(SQLDeleteJSFun.options, function (response) {
         var str = '';
         response.on('data', function (chunk) {
             str += chunk;
@@ -48,18 +48,10 @@ DBUpdateJSFun.submit = function (url, port, path, method, username, pwd, jsonStr
     req.end();
 };
 
-DBUpdateJSFun.getjsoncontentData = function (config) {
+SQLDeleteJSFun.getjsoncontentData = function (config) {
     var tablename = config.tablename;
-    var fields = config.fields;
     var condictions_op = config.cond_op;
     var condictions = config.conditions;
-    var objselectfielditem = new Object();
-    var fieldArray = [];
-    for (var index = 0; index < fields.length; index++) {
-        var fieldName = fields[index].name;
-        var value = fields[index].value;
-        fieldArray.push({"@fieldName": "" + fieldName + "", "@value": "" + value + ""});
-    }
     var cond_op = {"@value": "" + condictions_op + ""};
     var objcondsitem = new Object();
     var condsArray = [];
@@ -90,13 +82,9 @@ DBUpdateJSFun.getjsoncontentData = function (config) {
         });
     }
 
-    objselectfielditem.item = fieldArray;
     objcondsitem.item = condsArray;
-
     var objFields = new Object();
     objFields.tableName = {"@value": "" + tablename + ""};
-    if (fields.length !== 0)
-        objFields.fields = objselectfielditem;
     objFields.condictions_op = cond_op;
     if (condictions.length !== 0)
         objFields.condictions = objcondsitem;
@@ -106,7 +94,7 @@ DBUpdateJSFun.getjsoncontentData = function (config) {
 };
 
 module.exports = function (RED) {
-    function DBUpdateNode(config) {
+    function SQLDeleteNode(config) {
         RED.nodes.createNode(this, config);
         var node = this;
         node.status({});
@@ -129,10 +117,10 @@ module.exports = function (RED) {
                         var decoder = new Buffer(encodestr, 'base64').toString();
                         username = decoder.split("$")[0];
                         pwd = decoder.split("$")[1];
-                        DBUpdateJSFun.options = DBUpdateJSFun.sethttpOption(url, port, '/webresources/SQLMgmt/updateData', 'post', username, pwd);
+                        SQLDeleteJSFun.options = SQLDeleteJSFun.sethttpOption(url, port, '/webresources/SQLMgmt/delData', 'post', username, pwd);
                         break;
                     case 'oauth':
-                        DBUpdateJSFun.options = DBUpdateJSFun.sethttpOption_token(url, port, '/webresources/SQLMgmt/updateData', 'post', token);
+                        SQLDeleteJSFun.options = SQLDeleteJSFun.sethttpOption_token(url, port, '/webresources/SQLMgmt/delData', 'post', token);
                         break;
                 }
             } else {
@@ -141,21 +129,34 @@ module.exports = function (RED) {
                     node.status({fill: "red", shape: "ring", text: "miss server parameters"});
                     return;
                 }
-                DBUpdateJSFun.options = DBUpdateJSFun.sethttpOption(url, port, '/webresources/SQLMgmt/updateData', 'post', username, pwd);
+                SQLDeleteJSFun.options = SQLDeleteJSFun.sethttpOption(url, port, '/webresources/SQLMgmt/delData', 'post', username, pwd);
             }
 
             if (typeof msg.tablename !== 'undefined' && msg.tablename !== '')
                 config.tablename = msg.tablename;
 
-            if (typeof msg.fields !== 'undefined' && msg.fields !== '')
-                config.data = msg.fields;
+            if (typeof msg.cond_op !== 'undefined' && msg.cond_op !== '')
+                config.cond_op = msg.cond_op;
 
+            if (typeof msg.conditions !== 'undefined' && msg.conditions !== '')
+                config.conditions = msg.conditions;
+            
             if (typeof config.tablename === 'undefined' || config.tablename === '') {
                 node.status({fill: "red", shape: "ring", text: "miss table name parameters"});
                 return;
             }
+            
+            if (typeof config.cond_op === 'undefined' || config.cond_op === '') {
+                node.status({fill: "red", shape: "ring", text: "miss cond_op parameters"});
+                return;
+            }
+            
+            if (typeof config.conditions === 'undefined' || config.conditions === '') {
+                node.status({fill: "red", shape: "ring", text: "miss conditions parameters"});
+                return;
+            }
 
-            DBUpdateJSFun.submit(url, port, '/webresources/SQLMgmt/updateData', 'post', username, pwd, DBUpdateJSFun.getjsoncontentData(config), function (res_success) {
+            SQLDeleteJSFun.submit(url, port, '/webresources/SQLMgmt/delData', 'post', username, pwd, SQLDeleteJSFun.getjsoncontentData(config), function (res_success) {
                 msg.payload = res_success;
                 node.send(msg);
                 node.status({fill: "green", shape: "dot", text: 'done'});
@@ -165,5 +166,5 @@ module.exports = function (RED) {
         });
     }
 
-    RED.nodes.registerType("DBUpdate", DBUpdateNode);
+    RED.nodes.registerType("SQLDelete", SQLDeleteNode);
 };

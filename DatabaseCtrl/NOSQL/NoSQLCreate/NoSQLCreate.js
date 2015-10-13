@@ -1,6 +1,6 @@
 var http = require('http');
-var DBInsertJSFun = {};
-DBInsertJSFun.options = {
+var NoSQLCreateJSFun = {};
+NoSQLCreateJSFun.options = {
     host: 'localhost',
     port: '8080',
     path: '/webresources',
@@ -10,29 +10,29 @@ DBInsertJSFun.options = {
         'Content-Type': 'application/json'}
 };
 
-DBInsertJSFun.sethttpOption = function (host, port, path, method, user, pwd) {
-    DBInsertJSFun.options.host = host;
-    DBInsertJSFun.options.port = port;
-    DBInsertJSFun.options.path = path;
-    DBInsertJSFun.options.method = method;
-    DBInsertJSFun.options.headers.Authorization = 'Basic ' + new Buffer(user + ":" + pwd).toString('base64');
-    DBInsertJSFun.options.headers.Accesstoken = '';
-    return DBInsertJSFun.options;
+NoSQLCreateJSFun.sethttpOption = function (host, port, path, method, user, pwd) {
+    NoSQLCreateJSFun.options.host = host;
+    NoSQLCreateJSFun.options.port = port;
+    NoSQLCreateJSFun.options.path = path;
+    NoSQLCreateJSFun.options.method = method;
+    NoSQLCreateJSFun.options.headers.Authorization = 'Basic ' + new Buffer(user + ":" + pwd).toString('base64');
+    NoSQLCreateJSFun.options.headers.Accesstoken = '';
+    return NoSQLCreateJSFun.options;
 };
 
-DBInsertJSFun.sethttpOption_token = function (host, port, path, method, token) {
-    DBInsertJSFun.options.host = host;
-    DBInsertJSFun.options.port = port;
-    DBInsertJSFun.options.path = path;
-    DBInsertJSFun.options.method = method;
-    DBInsertJSFun.options.headers.Authorization = '';
-    DBInsertJSFun.options.headers.Accesstoken = 'Bearer ' + token;
-    return DBInsertJSFun.options;
+NoSQLCreateJSFun.sethttpOption_token = function (host, port, path, method, token) {
+    NoSQLCreateJSFun.options.host = host;
+    NoSQLCreateJSFun.options.port = port;
+    NoSQLCreateJSFun.options.path = path;
+    NoSQLCreateJSFun.options.method = method;
+    NoSQLCreateJSFun.options.headers.Authorization = '';
+    NoSQLCreateJSFun.options.headers.Accesstoken = 'Bearer ' + token;
+    return NoSQLCreateJSFun.options;
 };
 
-DBInsertJSFun.submit = function (url, port, path, method, username, pwd, jsonStringData, res_success, res_error) {
+NoSQLCreateJSFun.submit = function (url, port, path, method, username, pwd, jsonStringData, res_success, res_error) {
 //    var options = this.sethttpOption(url, port, path, method, username, pwd);
-    var req = http.request(DBInsertJSFun.options, function (response) {
+    var req = http.request(NoSQLCreateJSFun.options, function (response) {
         var str = '';
         response.on('data', function (chunk) {
             str += chunk;
@@ -48,27 +48,26 @@ DBInsertJSFun.submit = function (url, port, path, method, username, pwd, jsonStr
     req.end();
 };
 
-DBInsertJSFun.getjsoncontentData = function (config) {
-    var tablename = config.tablename;
+NoSQLCreateJSFun.getjsoncontentData = function (config) {
+    var collectionname = config.collectionname;
     var data = config.data;
     var objitem = new Object();
     var fieldArray = [];
-    for (var index = 0; index < data.length; index++) {
-        var fieldName = data[index].fieldname;
-        var fieldValue = data[index].value;
-        fieldArray.push({"@fieldName": "" + fieldName + "", "@value": "" + fieldValue + ""});
+    for (var index in data) {
+        var fieldName = data[index].name;
+        fieldArray.push({"@fieldName": "" + fieldName + ""});
     }
     objitem.item = fieldArray;
     var objfields = new Object();
-    objfields.tableName = {"@value": "" + tablename + ""};
-    objfields.fields = objitem;
+    objfields.collectionName = {"@value": "" + collectionname + ""};
+    objfields.indexFields = objitem;
     var objreq = new Object();
     objreq.request = objfields;
     return JSON.stringify(objreq);
 };
 
 module.exports = function (RED) {
-    function DBInsertNode(config) {
+    function NoSQLCreateNode(config) {
         RED.nodes.createNode(this, config);
         var node = this;
         node.status({});
@@ -91,10 +90,10 @@ module.exports = function (RED) {
                         var decoder = new Buffer(encodestr, 'base64').toString();
                         username = decoder.split("$")[0];
                         pwd = decoder.split("$")[1];
-                        DBInsertJSFun.options = DBInsertJSFun.sethttpOption(url, port, '/webresources/SQLMgmt/insertData', 'post', username, pwd);
+                        NoSQLCreateJSFun.options = NoSQLCreateJSFun.sethttpOption(url, port, '/webresources/NoSQLMgmt/createCollection', 'post', username, pwd);
                         break;
                     case 'oauth':
-                        DBInsertJSFun.options = DBInsertJSFun.sethttpOption_token(url, port, '/webresources/SQLMgmt/insertData', 'post', token);
+                        NoSQLCreateJSFun.options = NoSQLCreateJSFun.sethttpOption_token(url, port, '/webresources/NoSQLMgmt/createCollection', 'post', token);
                         break;
                 }
             } else {
@@ -103,20 +102,18 @@ module.exports = function (RED) {
                     node.status({fill: "red", shape: "ring", text: "miss server parameters"});
                     return;
                 }
-                DBInsertJSFun.options = DBInsertJSFun.sethttpOption(url, port, '/webresources/SQLMgmt/insertData', 'post', username, pwd);
+                NoSQLCreateJSFun.options = NoSQLCreateJSFun.sethttpOption(url, port, '/webresources/NoSQLMgmt/createCollection', 'post', username, pwd);
             }
-
-            if (typeof msg.tablename !== 'undefined' && msg.tablename !== '')
-                config.tablename = msg.tablename;
-
-            if (typeof msg.fields !== 'undefined' && msg.fields !== '')
-                config.data = msg.fields;
-
-            if (typeof config.tablename === 'undefined' || config.tablename === '') {
+            if (typeof msg.collectionname !== 'undefined' && msg.collectionname !== '')
+                config.collectionname = msg.collectionname;
+            if (typeof msg.data !== 'undefined' && msg.data !== '')
+                config.data = msg.data;
+            if (typeof config.collectionname === 'undefined' || config.collectionname === '') {
                 node.status({fill: "red", shape: "ring", text: "miss table name parameters"});
                 return;
             }
-            DBInsertJSFun.submit(url, port, '/webresources/SQLMgmt/insertData', 'post', username, pwd, DBInsertJSFun.getjsoncontentData(config), function (res_success) {
+            node.status({fill: "green", shape: "dot", text: 'sending'});
+            NoSQLCreateJSFun.submit(url, port, '/webresources/NoSQLMgmt/createCollection', 'post', username, pwd, NoSQLCreateJSFun.getjsoncontentData(config), function (res_success) {
                 msg.payload = res_success;
                 node.send(msg);
                 node.status({fill: "green", shape: "dot", text: 'done'});
@@ -126,5 +123,5 @@ module.exports = function (RED) {
         });
     }
 
-    RED.nodes.registerType("DBInsert", DBInsertNode);
+    RED.nodes.registerType("NoSQLCreate", NoSQLCreateNode);
 };

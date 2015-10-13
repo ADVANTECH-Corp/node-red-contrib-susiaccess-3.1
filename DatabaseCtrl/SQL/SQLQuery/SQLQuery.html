@@ -47,7 +47,7 @@
         });
     }
     
-    function DBQuery_Option(item) {
+    function SQLQuery_Option(item) {
         $('#node-sa-input-getcol').click(function () {
             var url = $('#node-sa-input-url').val();
             var port = $('#node-sa-input-port').val();
@@ -62,8 +62,8 @@
             submit('http://' + url + ':' + port + '/webresources/SQLMgmt/getTableInfo/' + tablename, 'get', '', user, pwd, function (resultstr) {
                 var obj = JSON.parse(resultstr);
                 if (typeof obj['result']['ErrorCode'] === 'undefined') {
-                    DBQueryfillSelectFieldsTable(obj);
-                    DBQueryfillCondOrderSelectTable(obj);
+                    SQLQueryfillSelectFieldsTable(obj);
+                    SQLQueryfillCondOrderSelectTable(obj);
                 } else {
                     $('#node-sa-warnstr').html(obj['result']['ErrorCode'] + ' : ' + obj['result']['Description']);
                     $('#node-sa-warnstr').show();
@@ -188,14 +188,14 @@
             }
         });
         
-        DBQuery_restoreselectFieldsData(item);
-        DBQuery_restorecond_opData(item);
-        DBQuery_restoreconds(item);
-        DBQuery_restore_offeset(item);
-        DBQuery_restore_limit(item);
-        DBQuery_restore_orderby(item);
+        SQLQuery_restoreselectFieldsData(item);
+        SQLQuery_restorecond_opData(item);
+        SQLQuery_restoreconds(item);
+        SQLQuery_restore_offeset(item);
+        SQLQuery_restore_limit(item);
+        SQLQuery_restore_orderby(item);
     }
-    function DBQuery_restore_orderby(item){
+    function SQLQuery_restore_orderby(item){
         if(typeof item.orderby === 'undefined' || item.orderby === '')
             return;
         var orderby = item.orderby;
@@ -214,7 +214,7 @@
         $('#node-sa-input-table-orderBy tr').has('td').remove();
         $('#node-sa-input-table-orderBy').append(str);
     }
-    function DBQuery_restoreconds(item){
+    function SQLQuery_restoreconds(item){
         if(typeof item.conditions === 'undefined' || item.conditions === '')
             return;
         var conditions = item.conditions;
@@ -249,22 +249,22 @@
         $('#node-sa-input-table-condictions tr').has('td').remove();
         $('#node-sa-input-table-condictions').append(str);
     }
-    function DBQuery_restore_offeset(item){
+    function SQLQuery_restore_offeset(item){
         if(typeof item.offset === 'undefined' || item.offset === '')
             return;
         $('#node-sa-input-offset').val(item.offset);
     }
-    function DBQuery_restore_limit(item){
+    function SQLQuery_restore_limit(item){
         if(typeof item.limit === 'undefined' || item.limit === '')
             return;
         $('#node-sa-input-limit').val(item.limit);
     }
-    function DBQuery_restorecond_opData(item){
+    function SQLQuery_restorecond_opData(item){
         if(typeof item.cond_op === 'undefined' || item.cond_op === '')
             return;
         $('#node-sa-input-li-condop select').val(item.cond_op);
     }
-    function DBQuery_restoreselectFieldsData(item){
+    function SQLQuery_restoreselectFieldsData(item){
         if(typeof item.selectFields === 'undefined' || item.selectFields === '')
             return;
         var selectField = item.selectFields;
@@ -284,7 +284,7 @@
         $('#node-sa-input-table-selectFields').append(str);
     }
     
-    function DBQueryfillCondOrderSelectTable(obj) {
+    function SQLQueryfillCondOrderSelectTable(obj) {
         var items = obj['result']['item'];
         var str = '';
         for (var index = 0; index < items.length; index++) {
@@ -298,7 +298,7 @@
         $('#node-sa-input-select-orders-name').append(str);
     }
 
-    function DBQueryfillSelectFieldsTable(obj) {
+    function SQLQueryfillSelectFieldsTable(obj) {
         var items = obj['result']['item'];
         var str = '';
         for (var index = 0; index < items.length; index++) {
@@ -313,16 +313,16 @@
         $('#node-sa-input-table-selectFields').append(str);
     }
 
-    function DBQuery_set2Data(item) {
-        DBQuery_storeSelectField(item);
-        DBQuery_storeCondOp(item);
-        DBQuery_storeConds(item);
-        DBQuery_storeOffset(item);
-        DBQuery_storeLimit(item);
-        DBQuery_storeOrderby(item);
+    function SQLQuery_set2Data(item) {
+        SQLQuery_storeSelectField(item);
+        SQLQuery_storeCondOp(item);
+        SQLQuery_storeConds(item);
+        SQLQuery_storeOffset(item);
+        SQLQuery_storeLimit(item);
+        SQLQuery_storeOrderby(item);
     }
 
-    function DBQuery_storeOrderby(item) {
+    function SQLQuery_storeOrderby(item) {
         var ordersArray = [];
         $('#node-sa-input-table-orderBy .data').each(function () {
             var name = $(this).attr('fieldname');
@@ -334,13 +334,13 @@
         });
         item.orderby = ordersArray;
     }
-    function DBQuery_storeOffset(item) {
+    function SQLQuery_storeOffset(item) {
         item.offset = $('#node-sa-input-li-offset input').val();
     }
-    function DBQuery_storeLimit(item) {
+    function SQLQuery_storeLimit(item) {
         item.limit = $('#node-sa-input-li-limit input').val();
     }
-    function DBQuery_storeConds(item) {
+    function SQLQuery_storeConds(item) {
         var condsArray = [];
         $('#node-sa-input-table-condictions .data').each(function () {
             var name = $(this).attr('fieldname');
@@ -354,10 +354,10 @@
         });
         item.conditions = condsArray;
     }
-    function DBQuery_storeCondOp(item) {
+    function SQLQuery_storeCondOp(item) {
         item.cond_op = $('#node-sa-input-li-condop select').val();
     }
-    function DBQuery_storeSelectField(item) {
+    function SQLQuery_storeSelectField(item) {
         var selectFieldsArray = [];
         $('#node-sa-input-table-selectFields .data').each(function () {
             var name = $(this).attr('fieldname');
@@ -375,8 +375,8 @@
     }
 </script>
 <script type="text/javascript">
-    RED.nodes.registerType('DBQuery', {
-        category: 'SA31_DBCtrl',
+    RED.nodes.registerType('SQLQuery', {
+        category: 'SA31_SQLCtrl',
         color: 'rgb(157, 181, 195)',
         defaults: {
             url: {value: "localhost"},
@@ -393,26 +393,26 @@
         outputs: 1,
         icon: "file.png",
         label: function () {
-            return this.name || "DBQuery";
+            return this.name || "SQLQuery";
         },
         oneditprepare: function () {
             $('#node-input-name').val(this.name);
             $('#node-sa-input-url').val(this.url);
             $('#node-sa-input-port').val(this.port);
             $('#node-sa-input-tablename').val(this.tablename);
-            DBQuery_Option(this);
+            SQLQuery_Option(this);
         },
         oneditsave: function () {
             this.name = $('#node-input-name').val();
             this.url = $('#node-sa-input-url').val();
             this.port = $('#node-sa-input-port').val();
             this.tablename = $('#node-sa-input-tablename').val();
-            DBQuery_set2Data(this);
+            SQLQuery_set2Data(this);
         }
     });
 </script>
 
-<script type="text/x-red" data-template-name="DBQuery">
+<script type="text/x-red" data-template-name="SQLQuery">
     <div class="form-row">
     <label for="node-input-name"><i class="icon-tag"></i> Name</label>
     <input type="text" id="node-input-name" placeholder="Node Name">
@@ -525,7 +525,7 @@
     <span style="float: right; margin-top: 5px"><a class="btn btn-mini" id="node-sa-input-addorders"><i class="fa fa-plus"></i> Add Order</a></span>
     </div>
 </script>
-<script type="text/x-red" data-help-name="DBQuery">
+<script type="text/x-red" data-help-name="SQLQuery">
     <p>Query data from a existed table of SUSIAccess 3.1 postgre database. </p>
     <p>User set the server ip (<code>msg.url</code>), port (<code>msg.port</code>), username (<code>msg.username</code>) and password (<code>msg.pwd</code>).</p>
     <p>User can set the table name, select field, condition operator, conditions, offset, limit and order under this node or set <code>msg.tablename</code>, <code>msg.selectFields</code>, <code>msg.cond_op</code>, <code>msg.conditions</code>, <code>msg.offset</code>, <code>msg.limit</code> and <code>msg.orderby</code>. </p>

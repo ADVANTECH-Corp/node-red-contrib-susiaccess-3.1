@@ -1,5 +1,5 @@
 <script>
-    function DBInsert_Option(item) {
+    function SQLInsert_Option(item) {
         function submit(path, method, data, user, password, callback)
         {
             $.ajax({
@@ -140,8 +140,8 @@
     }
 </script>
 <script type="text/javascript">
-    RED.nodes.registerType('DBInsert', {
-        category: 'SA31_DBCtrl',
+    RED.nodes.registerType('SQLInsert', {
+        category: 'SA31_SQLCtrl',
         color: 'rgb(157, 181, 195)',
         defaults: {
             url: {value: "localhost"},
@@ -153,14 +153,14 @@
         outputs: 1,
         icon: "file.png",
         label: function () {
-            return this.name || "DBInsert";
+            return this.name || "SQLInsert";
         },
         oneditprepare: function () {
             $('#node-input-name').val(this.name);
             $('#node-sa-input-url').val(this.url);
             $('#node-sa-input-port').val(this.port);
             $('#node-sa-input-tablename').val(this.tablename);
-            DBInsert_Option(this);
+            SQLInsert_Option(this);
         },
         oneditsave: function () {
             this.name = $('#node-input-name').val();
@@ -173,7 +173,7 @@
     });
 </script>
 
-<script type="text/x-red" data-template-name="DBInsert">
+<script type="text/x-red" data-template-name="SQLInsert">
     <div class="form-row">
     <label for="node-input-name"><i class="icon-tag"></i> Name</label>
     <input type="text" id="node-input-name" placeholder="Node Name">
@@ -211,7 +211,7 @@
     </div>
     </div>
 </script>
-<script type="text/x-red" data-help-name="DBInsert">
+<script type="text/x-red" data-help-name="SQLInsert">
     <p>Insert data into a existed table of SUSIAccess 3.1 postgre database. </p>
     <p>User set the server ip (<code>msg.url</code>), port (<code>msg.port</code>), username (<code>msg.username</code>) and password (<code>msg.pwd</code>).</p>
     <p>User can set the table name and table field under this node or set <code>msg.tablename</code> and <code>msg.fields</code>. </p>

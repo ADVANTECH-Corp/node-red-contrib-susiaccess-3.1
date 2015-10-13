@@ -85,8 +85,8 @@
     }
 </script>
 <script type="text/javascript">
-    RED.nodes.registerType('DBCreate', {
-        category: 'SA31_DBCtrl',
+    RED.nodes.registerType('SQLCreate', {
+        category: 'SA31_SQLCtrl',
         color: 'rgb(157, 181, 195)',
         defaults: {
             tablename: {value: ""},
@@ -96,7 +96,7 @@
         outputs: 1,
         icon: "file.png",
         label: function () {
-            return this.name || "DBCreate";
+            return this.name || "SQLCreate";
         },
         oneditprepare: function () {
             $('#node-input-name').val(this.name);
@@ -112,7 +112,7 @@
     });
 </script>
 
-<script type="text/x-red" data-template-name="DBCreate">
+<script type="text/x-red" data-template-name="SQLCreate">
     <div class="form-row">
     <label for="node-input-name"><i class="icon-tag"></i> Name</label>
     <input type="text" id="node-input-name" placeholder="Node Name">
@@ -166,7 +166,7 @@
     </div>
 
 </script>
-<script type="text/x-red" data-help-name="DBCreate">
+<script type="text/x-red" data-help-name="SQLCreate">
     <p>Create a table with the name, length and type of column under SUSIAccess 3.1 postgre database. </p>
     <p>User set the server ip (<code>msg.url</code>), port (<code>msg.port</code>), username (<code>msg.username</code>) and password (<code>msg.pwd</code>).</p>
     <p>User can set the table name and table field under this node or set <code>msg.tablename</code> and <code>msg.fields</code>. </p>
