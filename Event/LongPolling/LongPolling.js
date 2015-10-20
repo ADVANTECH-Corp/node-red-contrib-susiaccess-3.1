@@ -2,6 +2,7 @@ var http = require('http');
 var LongPollingJSFun = {};
 LongPollingJSFun.eventid = 0;
 LongPollingJSFun.pending = false;
+LongPollingJSFun.deplyed = true;
 LongPollingJSFun.options = {
     host: 'localhost',
     port: '8080',
@@ -61,12 +62,16 @@ module.exports = function (RED) {
     function LongPollingNode(config) {
         RED.nodes.createNode(this, config);
         var node = this;
-        LongPollingJSFun.eventid = 0;
-        LongPollingJSFun.pending = false;
-        node.status({});
+        this.on('close', function(){
+//            LongPollingJSFun.eventid = 0;
+//            LongPollingJSFun.pending = false;
+            LongPollingJSFun.deplyed = true;
+            node.status({});
+        });
         this.on('input', function (msg) {
             if (LongPollingJSFun.pending)
                 return;
+            LongPollingJSFun.deplyed = false;
             var url = msg.url;
             var port = msg.port;
             var username = msg.username;
@@ -101,12 +106,12 @@ module.exports = function (RED) {
                 LongPollingJSFun.options = LongPollingJSFun.sethttpOption(url, port, '/webresources/EventMgmt/long-polling/', 'post', username, pwd);
             }
             statusNode.status({fill: "green", shape: "ring", text: "pending"});
+            LongPollingJSFun.pending = true;
             longpolling(node, msg, url, port, username, pwd, statusNode);
         });
     }
 
-    function longpolling(node, msg, url, port, username, pwd, statusNode) {
-        LongPollingJSFun.pending = true;
+    function longpolling(node, msg, url, port, username, pwd, statusNode) {        
         LongPollingJSFun.submit(url, port, '/webresources/EventMgmt/long-polling/', 'post', username, pwd, LongPollingJSFun.getjsoncontentData(), function (res_success) {
             try {
                 var obj = JSON.parse(res_success);
@@ -118,11 +123,18 @@ module.exports = function (RED) {
                 }
             } catch (e) {
             }
-            LongPollingJSFun.pending = false;
-            longpolling(node, msg, url, port, username, pwd, statusNode);
+            
+            if(!LongPollingJSFun.deplyed){
+//                LongPollingJSFun.pending = false;
+//                LongPollingJSFun.deplyed = true;
+                longpolling(node, msg, url, port, username, pwd, statusNode);
+            }else{
+                LongPollingJSFun.eventid = 0;
+                LongPollingJSFun.pending = false;
+            }
         }, function (res_error) {
             statusNode.status({fill: "red", shape: "ring", text: res_error});
-            LongPollingJSFun.pending = false;
+//            LongPollingJSFun.pending = false;
         });
     }
     ;
